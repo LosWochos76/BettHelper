@@ -27,76 +27,57 @@ namespace betthelper.Model
             var matches = JArray.Parse(content).ToObject<List<Match>>();
 
             foreach (var m in matches)
+            {
                 m.League = league;
+                m.Season = year;
+            }
             
             return matches;
         }
 
-        public void LoadAll() 
+        public void LoadAll(int current_season) 
         {
-            int current_year = DateTime.Now.Year;
-            if (DateTime.Now.Month < 9)
-                current_year--;
-
             Matches.Clear();
-            Matches.AddRange(LoadSingleYear(1, current_year).GetAwaiter().GetResult());
-            Matches.AddRange(LoadSingleYear(1, current_year-1).GetAwaiter().GetResult());
-            Matches.AddRange(LoadSingleYear(2, current_year-1).GetAwaiter().GetResult());
+            Matches.AddRange(LoadSingleYear(1, current_season).GetAwaiter().GetResult());
+            Matches.AddRange(LoadSingleYear(1, current_season-1).GetAwaiter().GetResult());
+            Matches.AddRange(LoadSingleYear(2, current_season-1).GetAwaiter().GetResult());
         }
 
-        public double GetAverageGoalsAsHomeTeam(string team_name, int match_count)
+        public double GetWeightedAverageGoalsAsHomeTeam(string team_name)
         {
             int sum = 0;
-            int count = 0;
+            int sum_weights = 0;
+            var matches = HomeMatches(team_name).Take(5).ToList();
 
-            var matches = (from m in Matches 
-                where m.MatchIsFinished && m.Team1.ShortName == team_name 
-                orderby m.MatchDateTime descending select m);
-
-            foreach (var m in matches) 
+            for (int i=0; i<matches.Count; i++)
             {
-                if (m.League == 2)
-                    sum+= m.MatchResults[0].PointsTeam1 / 2;
-                else
-                    sum+=m.MatchResults[0].PointsTeam1;
-                
-                count++;
-                
-                if (count + 1 == match_count)
-                    break;
+                sum_weights += matches.Count - i; 
+                sum += (matches.Count - i) * matches[i].MatchResults[0].PointsTeam1;
             }
 
-            return (double)sum / count;
+            return (double)sum / sum_weights;
         }
 
-        public double GetAverageGoalsAsAwayTeam(string team_name, int match_count)
+        public double GetWeightedAverageGoalsAsAwayTeam(string team_name)
         {
             int sum = 0;
-            int count = 0;
+            int sum_weights = 0;
+            var matches = AwayMatches(team_name).Take(5).ToList();
 
-            var matches = (from m in Matches 
-                where m.MatchIsFinished && m.Team2.ShortName == team_name 
-                orderby m.MatchDateTime descending select m);
-                
-            foreach (var m in matches) 
+            for (int i=0; i<matches.Count; i++)
             {
-                if (m.League == 2)
-                    sum+= m.MatchResults[0].PointsTeam2 / 2;
-                else
-                    sum+=m.MatchResults[0].PointsTeam2;
-                
-                count++;
-                
-                if (count + 1 == match_count)
-                    break;
+                sum_weights += matches.Count - i; 
+                sum += (matches.Count - i) * matches[i].MatchResults[0].PointsTeam2;
             }
 
-            return (double)sum / count;
+            return (double)sum / sum_weights;
         }
 
-        public List<string> TeamNames(int league) 
+        public List<string> TeamNames(int league, int season) 
         {
-            return (from m in Matches where m.League == league select m.Team1.ShortName).Distinct().ToList();
+            return (from m in Matches 
+                where m.League == league && m.Season == season
+                select m.Team1.ShortName).Distinct().ToList();
         }
 
         public List<Match> UpcomingMatches() 
@@ -104,6 +85,37 @@ namespace betthelper.Model
             return (from m in Matches 
                 where !m.MatchIsFinished && m.League == 1
                 orderby m.MatchDateTime
+                select m).ToList();
+        }
+
+        public List<Match> HomeMatches(string team_name) 
+        {
+            return (from m in Matches
+                where m.MatchIsFinished && m.Team1.ShortName == team_name
+                orderby m.MatchDateTime descending
+                select m).ToList();
+        }
+
+        public List<Match> HomeMatches(string team_name, int league, int season) 
+        {
+            return (from m in HomeMatches(team_name)
+                where  m.League == league && m.Season == season 
+                select m).ToList();
+        }
+
+        public List<Match> AwayMatches(string team_name) 
+        {
+            return (from m in Matches
+                where m.MatchIsFinished && m.Team2.ShortName == team_name
+                orderby m.MatchDateTime descending
+                select m).ToList();
+        }
+
+        public List<Match> AwayMatches(string team_name, int league, int season) 
+        {
+            return (from m in AwayMatches(team_name)
+                where m.League == league && m.Season == season 
+                orderby m.MatchDateTime descending
                 select m).ToList();
         }
     }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace betthelper
+namespace betthelper.Model
 {
     public class PoissonDistribution
     {

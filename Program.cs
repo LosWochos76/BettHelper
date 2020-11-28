@@ -9,7 +9,8 @@ namespace betthelper
         static void Main(string[] args)
         {
             var helper = new BettHelper();
-            helper.Calculate();
+            helper.CreateFullReport();
+            helper.WriteReportToFile("results.md");
         }
     }
 }
