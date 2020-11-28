@@ -58,6 +58,21 @@ namespace betthelper.Model
             return (double)sum / sum_weights;
         }
 
+        public double GetSuccessRate(string team_name) 
+        {
+            int sum_points = 0;
+            foreach (var m in AllMatches(team_name).Take(5)) 
+            {
+                if (m.WinnerTeamName == team_name)
+                    sum_points += 3;
+                
+                if (m.WinnerTeamName == "")
+                    sum_points++;
+            }
+
+            return (double)sum_points/15*100;
+        }
+
         public double GetWeightedAverageGoalsAsAwayTeam(string team_name)
         {
             int sum = 0;
@@ -85,6 +100,14 @@ namespace betthelper.Model
             return (from m in Matches 
                 where !m.MatchIsFinished && m.League == 1
                 orderby m.MatchDateTime
+                select m).ToList();
+        }
+
+        public List<Match> AllMatches(string team_name)
+        {
+            return (from m in Matches
+                where m.MatchIsFinished && (m.Team1.ShortName == team_name || m.Team2.ShortName == team_name)
+                orderby m.MatchDateTime descending
                 select m).ToList();
         }
 

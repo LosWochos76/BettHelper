@@ -8,20 +8,22 @@ using betthelper.Model;
 
 namespace betthelper
 {
-    public class BettHelper
+    public class ReportGenerator
     {
         private Markdown md = new Markdown();
         private MatchRepository repository = new MatchRepository();
-        
+        private Table table;
+
         private int current_season;
 
-        public BettHelper() 
+        public ReportGenerator() 
         {
             current_season = DateTime.Now.Year;
             if (DateTime.Now.Month < 9)
                 current_season--;
 
             repository.LoadAll(current_season);
+            table = new Table(repository);
         }
 
         private void WriteReportForSingleMatch(Model.Match m) 
@@ -30,12 +32,16 @@ namespace betthelper
             var aga = repository.GetWeightedAverageGoalsAsAwayTeam(m.Team2.ShortName);
 
             md.AddText("\\pagebreak");
+            md.AddEmpty();
             md.AddSubSection( 
                 m.Team1.ShortName + " gegen " + 
                 m.Team2.ShortName + " am " + 
                 m.MatchDateTime.ToShortDateString() + " um " + m.MatchDateTime.ToShortTimeString());
-            
+            md.AddEmpty();
             md.AddSubsubSection(m.Team1.ShortName);
+            md.AddBulletpoint("Aktueller Tabellenplatz: " + table.PositionOf(m.Team1.ShortName));
+            md.AddBulletpoint("Erfolgsquote in den letzten 5 Spielen: " + 
+                Math.Round(repository.GetSuccessRate(m.Team1.ShortName), 2) + "%");
             md.AddBulletpoint("Gewichtete, durchschnittliche Heimtore: " + Math.Round(agh,2));
             md.AddBulletpoint("Letzte Heimspiele:");
             md.AddEmpty();
@@ -50,6 +56,9 @@ namespace betthelper
             md.AddEmpty();
 
             md.AddSubsubSection(m.Team2.ShortName);
+            md.AddBulletpoint("Aktueller Tabellenplatz: " + table.PositionOf(m.Team2.ShortName));
+            md.AddBulletpoint("Erfolgsquote in den letzten 5 Spielen: " + 
+                Math.Round(repository.GetSuccessRate(m.Team2.ShortName), 2) + "%");
             md.AddBulletpoint("Gewichtete, durchschnittliche Auswärtstore: " +  Math.Round(aga,2));
             md.AddBulletpoint("Letzte Auswärtsspiele:");
             md.AddEmpty();
@@ -74,6 +83,8 @@ namespace betthelper
 
             foreach (var p in probabilities)
                 md.AddText(String.Format("| {0:0.00}% | {1} |", p.ProbablityInPercent, p.Result));
+
+            md.AddEmpty();
         }
 
         private void WriteReportForMatches()
@@ -84,10 +95,11 @@ namespace betthelper
 
         public void CreateFullReport()
         {
+            Console.WriteLine("Creating report...");
+            
             md.AddSection("BettHelper-Report vom " + DateTime.Now.ToShortDateString());
             md.AddEmpty();
 
-            var table = new Table(repository);
             table.CreateTable(current_season);
             table.WriteReport(md);
 
@@ -96,6 +108,7 @@ namespace betthelper
 
         public void WriteReportToFile(string filename) 
         {
+            Console.WriteLine("Writing report to file...");
             md.WriteToFile(filename);
         }
     }

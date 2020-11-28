@@ -1,4 +1,4 @@
-﻿namespace betthelper
+﻿namespace betthelper.Model
 {
     public class ResultProbability
     {

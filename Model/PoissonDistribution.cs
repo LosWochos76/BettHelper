@@ -5,11 +5,11 @@ namespace betthelper.Model
 {
     public class PoissonDistribution
     {
-        public string HomeTeam { get; set; }
-        public string AwayTeam { get; set; }
-        public double HomeTeamAverageGoals { get; set; }
-        public double AwayTeamAverageGoals { get; set; }
-        public List<ResultProbability> Probabilities { get; set; }
+        public string HomeTeam { get; private set; }
+        public string AwayTeam { get; private set; }
+        public double HomeTeamAverageGoals { get; private set; }
+        public double AwayTeamAverageGoals { get; private set; }
+        public List<ResultProbability> Probabilities { get; private set; }
 
         public PoissonDistribution(string homeTeam, double average_home_team_goals, string awayTeam, double average_away_team_goals)
         {

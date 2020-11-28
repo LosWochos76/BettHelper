@@ -13,6 +13,17 @@ namespace betthelper.Model
             this.repository = repository;
         }
 
+        public int PositionOf(string team_name) 
+        {
+            for (int i=0; i<table.Count; i++)
+            {
+                if (table[i].Team == team_name)
+                    return i+1;
+            }
+
+            return -1;
+        }
+
         public void CreateTable(int current_season)
         {
             var teams = repository.TeamNames(1, current_season);
@@ -40,6 +51,8 @@ namespace betthelper.Model
 
                 table.Add(pos);
             }
+
+            table = (from p in table orderby p.Points descending, p.Diff select p).ToList();
         }
 
         public void WriteReport(Markdown md) 
@@ -49,10 +62,9 @@ namespace betthelper.Model
             md.AddText("|#|Team|Punkte|Anzahl Spiele|Torverhältnis|Differenz|");
             md.AddText("|-|----|------|-------------|-------------|---------|");
 
-            var positions = (from p in table orderby p.Points descending, p.Diff select p).ToList();
-            for (int i=0; i<positions.Count; i++) 
+            for (int i=0; i<table.Count; i++) 
             {
-                var p = positions[i];
+                var p = table[i];
                 md.AddText(
                     (i+1).ToString() + "|" + 
                     p.Team + "|" +
