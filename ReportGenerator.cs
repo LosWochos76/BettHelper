@@ -89,7 +89,7 @@ namespace betthelper
 
         private void WriteReportForMatches()
         {
-            foreach (var m in repository.UpcomingMatches().Take(8)) 
+            foreach (var m in repository.UpcomingMatches().Take(9)) 
                 WriteReportForSingleMatch(m);
         }
 
