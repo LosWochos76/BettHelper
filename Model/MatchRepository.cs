@@ -45,17 +45,36 @@ namespace betthelper.Model
 
         public double GetWeightedAverageGoalsAsHomeTeam(string team_name)
         {
-            int sum = 0;
-            int sum_weights = 0;
-            var matches = HomeMatches(team_name).Take(5).ToList();
+             double sum = 0;
+            double weight = 1;
+            double sum_weights = 0;
+            var matches = AwayMatches(team_name).Take(5).ToList();
 
             for (int i=0; i<matches.Count; i++)
             {
-                sum_weights += matches.Count - i; 
-                sum += (matches.Count - i) * matches[i].MatchResults[0].PointsTeam1;
+                weight = i == 0 ? 1.5 : 1;
+                sum_weights += weight;
+                sum += weight * matches[i].MatchResults[0].PointsTeam1;
             }
 
-            return (double)sum / sum_weights;
+            return sum / sum_weights;
+        }
+
+        public double GetWeightedAverageGoalsAsAwayTeam(string team_name)
+        {
+            double sum = 0;
+            double weight = 1;
+            double sum_weights = 0;
+            var matches = AwayMatches(team_name).Take(5).ToList();
+
+            for (int i=0; i<matches.Count; i++)
+            {
+                weight = i == 0 ? 1.5 : 1;
+                sum_weights += weight;
+                sum += weight * matches[i].MatchResults[0].PointsTeam2;
+            }
+
+            return sum / sum_weights;
         }
 
         public double GetSuccessRate(string team_name) 
@@ -71,21 +90,6 @@ namespace betthelper.Model
             }
 
             return (double)sum_points/15*100;
-        }
-
-        public double GetWeightedAverageGoalsAsAwayTeam(string team_name)
-        {
-            int sum = 0;
-            int sum_weights = 0;
-            var matches = AwayMatches(team_name).Take(5).ToList();
-
-            for (int i=0; i<matches.Count; i++)
-            {
-                sum_weights += matches.Count - i; 
-                sum += (matches.Count - i) * matches[i].MatchResults[0].PointsTeam2;
-            }
-
-            return (double)sum / sum_weights;
         }
 
         public List<string> TeamNames(int league, int season) 
