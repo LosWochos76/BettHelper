@@ -45,10 +45,10 @@ namespace betthelper.Model
 
         public double GetWeightedAverageGoalsAsHomeTeam(string team_name)
         {
-             double sum = 0;
+            double sum = 0;
             double weight = 1;
             double sum_weights = 0;
-            var matches = AwayMatches(team_name).Take(5).ToList();
+            var matches = HomeMatches(team_name).Take(5).ToList();
 
             for (int i=0; i<matches.Count; i++)
             {
