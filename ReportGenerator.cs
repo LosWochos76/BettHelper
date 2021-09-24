@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Text.RegularExpressions;
 using betthelper.Model;
 
 namespace betthelper
@@ -19,7 +15,7 @@ namespace betthelper
         public ReportGenerator() 
         {
             current_season = DateTime.Now.Year;
-            if (DateTime.Now.Month < 9)
+            if (DateTime.Now.Month < 7 && DateTime.Now.Day < 30)
                 current_season--;
 
             repository.LoadAll(current_season);
@@ -51,7 +47,7 @@ namespace betthelper
             {
                 md.AddText("|" + ma.Season + "|" + ma.League + "|" + 
                     ma.MatchDateTime.ToShortDateString() + "|" + 
-                    ma.Team2.ShortName + "|" + ma.Result + "|");
+                    ma.Team2.ShortName + "|" + ma.ResultString + "|");
             }
             md.AddEmpty();
 
@@ -68,10 +64,10 @@ namespace betthelper
             {
                 md.AddText("|" + ma.Season + "|" + ma.League + "|" + 
                     ma.MatchDateTime.ToShortDateString() + "|" + 
-                    ma.Team1.ShortName + "|" + ma.Result + "|");
+                    ma.Team1.ShortName + "|" + ma.ResultString + "|");
             }
             md.AddEmpty();
-            
+
             var pd = new PoissonDistribution(m.Team1.ShortName, agh, m.Team2.ShortName, aga);
             pd.CalculateProbablities();
             var probabilities = (from p in pd.Probabilities orderby p.ProbablityInPercent descending select p).Take(5).ToList();
@@ -82,7 +78,7 @@ namespace betthelper
             md.AddText("|------------------|------------|");
 
             foreach (var p in probabilities)
-                md.AddText(String.Format("| {0:0.00}% | {1} |", p.ProbablityInPercent, p.Result));
+                md.AddText(String.Format("| {0:0.00}% | {1} |", p.ProbablityInPercent, p.ResultString));
 
             md.AddEmpty();
         }

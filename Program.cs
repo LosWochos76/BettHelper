@@ -11,6 +11,9 @@ namespace betthelper
             var helper = new ReportGenerator();
             helper.CreateFullReport();
             helper.WriteReportToFile("report.md");
+
+            //var simulator = new SeasonSimulator(2020);
+            //simulator.Simulate();
         }
     }
 }

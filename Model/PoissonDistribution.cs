@@ -36,7 +36,7 @@ namespace betthelper.Model
                 for (int j = 0; j<6; j++)
                 {
                     var prob = Math.Truncate(poisson_home[i] * poisson_away[j] * 10000) / 100;
-                    var probability = new ResultProbability(String.Format("{0}:{1}", i,j), prob);
+                    var probability = new ResultProbability(i, j, prob);
                     Probabilities.Add(probability);
                 }
             }

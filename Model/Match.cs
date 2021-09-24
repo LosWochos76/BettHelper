@@ -29,12 +29,25 @@ namespace betthelper.Model
             }
         }
 
-        public string Result
+        public string ResultString
         {
             get
             {
-                return MatchResults[0].PointsTeam1 + ":" + MatchResults[0].PointsTeam2;
+                return Result.PointsTeam1 + ":" + Result.PointsTeam2;
             }
+        }
+
+        public MatchResult Result
+        {
+            get
+            {
+                return MatchResults[0];
+            }
+        }
+
+        public override string ToString()
+        {
+            return MatchDateTime.ToShortDateString() + ":" + Team1.ShortName + " : " + Team2.ShortName + " -> " + ResultString; 
         }
     }
 }
